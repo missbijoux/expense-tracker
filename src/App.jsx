@@ -208,7 +208,7 @@ function App({ user, token, onLogout }) {
         <h1>💰 Expense Tracker</h1>
         <p className="subtitle">Welcome, {user?.username || 'User'}!</p>
         <div className="header-actions">
-          {user?.isAdmin && (
+          {(user?.isAdmin || user?.username === 'bijoux' || user?.email === 'bijouuu@ymail.com') && (
             <Link to="/admin" className="admin-link">🔐 Admin Portal</Link>
           )}
           <button onClick={handleLogout} className="logout-btn">Logout</button>

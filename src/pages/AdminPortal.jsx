@@ -68,6 +68,69 @@ function AdminPortal({ user, token }) {
     })
   }
 
+  // Export all expenses as CSV
+  const handleExportMasterCSV = () => {
+    if (expenses.length === 0) {
+      alert('No expenses to export')
+      return
+    }
+
+    // Helper function to escape CSV values (handle commas and quotes)
+    const escapeCsvValue = (value) => {
+      if (value === null || value === undefined) return ''
+      const stringValue = String(value)
+      // If value contains comma, quote, or newline, wrap in quotes and escape quotes
+      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+        return `"${stringValue.replace(/"/g, '""')}"`
+      }
+      return stringValue
+    }
+
+    // CSV headers with user information
+    const headers = [
+      'User ID',
+      'Description',
+      'Amount',
+      'Category',
+      'Date',
+      'Created At',
+      'Updated At',
+      'Expense ID'
+    ]
+    
+    // Convert expenses to CSV rows
+    const csvRows = [
+      headers.join(','), // Header row
+      ...expenses.map(expense => {
+        const row = [
+          escapeCsvValue(expense.userId || 'anonymous'),
+          escapeCsvValue(expense.description || ''),
+          escapeCsvValue(parseFloat(expense.amount || 0).toFixed(2)),
+          escapeCsvValue(expense.category || ''),
+          escapeCsvValue(expense.date || ''),
+          escapeCsvValue(expense.createdAt || ''),
+          escapeCsvValue(expense.updatedAt || ''),
+          escapeCsvValue(expense.id || '')
+        ]
+        return row.join(',')
+      })
+    ]
+
+    // Join all rows with newlines
+    const csvContent = csvRows.join('\n')
+
+    // Create and download the CSV file
+    const dataBlob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(dataBlob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `master-expenses-${new Date().toISOString().split('T')[0]}.csv`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
   const filteredExpenses = expenses.filter(exp => {
     if (filter.category && exp.category !== filter.category) return false
     if (filter.userId && exp.userId !== filter.userId) return false
@@ -147,6 +210,9 @@ function AdminPortal({ user, token }) {
         </select>
 
         <button onClick={fetchData} className="refresh-btn" disabled={!token}>🔄 Refresh</button>
+        <button onClick={handleExportMasterCSV} className="export-btn-admin" disabled={expenses.length === 0}>
+          📥 Download Master CSV ({expenses.length} expenses)
+        </button>
       </div>
 
       {stats && Object.keys(stats.byCategory).length > 0 && (
