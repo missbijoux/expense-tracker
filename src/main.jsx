@@ -33,7 +33,11 @@ function AppRouter() {
         })
         .then(data => {
           setToken(storedToken)
-          setUser(JSON.parse(storedUser))
+          // Update user data from server response (includes isAdmin)
+          const userData = data.user || JSON.parse(storedUser)
+          setUser(userData)
+          // Update localStorage with fresh user data
+          localStorage.setItem('user', JSON.stringify(userData))
         })
         .catch(() => {
           localStorage.removeItem('token')

@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '').split(',').filter(email => email.trim());
 const DATA_FILE = path.join(__dirname, 'data', 'expenses.json');
 const USERS_FILE = path.join(__dirname, 'data', 'users.json');
 
@@ -63,6 +64,42 @@ function authenticateToken(req, res, next) {
     req.user = user;
     next();
   });
+}
+
+// Admin authentication middleware
+async function authenticateAdmin(req, res, next) {
+  try {
+    // First verify token
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+      return res.status(401).json({ error: 'Access denied. No token provided.' });
+    }
+
+    jwt.verify(token, JWT_SECRET, async (err, decodedUser) => {
+      if (err) {
+        return res.status(403).json({ error: 'Invalid token.' });
+      }
+
+      // Check if user is admin
+      const usersData = await readUsers();
+      const user = usersData.users.find(u => u.id === decodedUser.id);
+      
+      // Check if user is admin (either has isAdmin flag OR email is in ADMIN_EMAILS)
+      const isAdmin = user?.isAdmin === true || 
+                      (ADMIN_EMAILS.length > 0 && ADMIN_EMAILS.includes(decodedUser.email));
+      
+      if (!isAdmin) {
+        return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+      }
+      
+      req.user = decodedUser;
+      next();
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 }
 
 // Read expenses data
@@ -129,12 +166,22 @@ app.post('/api/auth/register', async (req, res) => {
       { expiresIn: '7d' }
     );
 
+    // Check if new user should be admin
+    const isAdmin = ADMIN_EMAILS.length > 0 && ADMIN_EMAILS.includes(email);
+    if (isAdmin) {
+      newUser.isAdmin = true;
+      // Update in stored data
+      usersData.users[usersData.users.length - 1].isAdmin = true;
+      await writeUsers(usersData);
+    }
+
     res.status(201).json({
       token,
       user: {
         id: newUser.id,
         username: newUser.username,
-        email: newUser.email
+        email: newUser.email,
+        isAdmin: isAdmin || false
       }
     });
   } catch (error) {
@@ -170,12 +217,17 @@ app.post('/api/auth/login', async (req, res) => {
       { expiresIn: '7d' }
     );
 
+    // Check if user is admin
+    const isAdmin = user.isAdmin === true || 
+                    (ADMIN_EMAILS.length > 0 && ADMIN_EMAILS.includes(user.email));
+
     res.json({
       token,
       user: {
         id: user.id,
         username: user.username,
-        email: user.email
+        email: user.email,
+        isAdmin: isAdmin || false
       }
     });
   } catch (error) {
@@ -273,8 +325,8 @@ app.delete('/api/expenses/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Admin portal - Get all expenses with stats (protected)
-app.get('/api/admin/stats', authenticateToken, async (req, res) => {
+// Admin portal - Get all expenses with stats (admin only)
+app.get('/api/admin/stats', authenticateAdmin, async (req, res) => {
   try {
     const data = await readExpenses();
     const expenses = data.expenses;
@@ -315,7 +367,12 @@ app.get('/api/admin/stats', authenticateToken, async (req, res) => {
 });
 
 // Catch all handler: send back React's index.html file for client-side routing
+// This should be last, after all API routes
 app.get('*', (req, res) => {
+  // Don't catch API routes
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 

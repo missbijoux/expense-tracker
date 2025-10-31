@@ -36,6 +36,23 @@
   padding: 60px;
 }
 
+.error-container {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.error-message-admin {
+  background: #e74c3c;
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .admin-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));

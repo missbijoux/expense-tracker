@@ -5,6 +5,7 @@ function AdminPortal({ user, token }) {
   const [stats, setStats] = useState(null)
   const [expenses, setExpenses] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [filter, setFilter] = useState({ category: '', userId: '' })
 
   const getAuthHeaders = () => {
@@ -26,6 +27,20 @@ function AdminPortal({ user, token }) {
         fetch('/api/expenses', { headers: getAuthHeaders() })
       ])
       
+      if (statsRes.status === 403) {
+        // User is not admin
+        setError('Access denied. Admin privileges required.')
+        setLoading(false)
+        return
+      }
+      
+      if (!statsRes.ok) {
+        const errorData = await statsRes.json().catch(() => ({ error: 'Failed to load admin data' }))
+        setError(errorData.error || 'Failed to load admin data')
+        setLoading(false)
+        return
+      }
+      
       if (statsRes.ok && expensesRes.ok) {
         const statsData = await statsRes.json()
         const expensesData = await expensesRes.json()
@@ -36,6 +51,7 @@ function AdminPortal({ user, token }) {
       setLoading(false)
     } catch (error) {
       console.error('Error fetching data:', error)
+      setError('Error loading admin data. Please try again.')
       setLoading(false)
     }
   }
@@ -65,6 +81,20 @@ function AdminPortal({ user, token }) {
     return (
       <div className="admin-portal">
         <div className="loading">Loading admin data...</div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="admin-portal">
+        <header className="admin-header">
+          <h1>🔐 Admin Portal</h1>
+        </header>
+        <div className="error-container">
+          <div className="error-message-admin">{error}</div>
+          <a href="/" className="back-link">← Back to Expense Tracker</a>
+        </div>
       </div>
     )
   }
