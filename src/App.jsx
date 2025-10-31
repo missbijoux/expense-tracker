@@ -58,14 +58,52 @@ function App() {
   // Calculate total
   const totalExpenses = expenses.reduce((sum, exp) => sum + parseFloat(exp.amount || 0), 0)
 
-  // Export expenses data
+  // Export expenses data as CSV
   const handleExportData = () => {
-    const dataStr = JSON.stringify(expenses, null, 2)
-    const dataBlob = new Blob([dataStr], { type: 'application/json' })
+    if (expenses.length === 0) {
+      alert('No expenses to export')
+      return
+    }
+
+    // Helper function to escape CSV values (handle commas and quotes)
+    const escapeCsvValue = (value) => {
+      if (value === null || value === undefined) return ''
+      const stringValue = String(value)
+      // If value contains comma, quote, or newline, wrap in quotes and escape quotes
+      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+        return `"${stringValue.replace(/"/g, '""')}"`
+      }
+      return stringValue
+    }
+
+    // CSV headers
+    const headers = ['Description', 'Amount', 'Category', 'Date', 'Created At', 'Updated At']
+    
+    // Convert expenses to CSV rows
+    const csvRows = [
+      headers.join(','), // Header row
+      ...expenses.map(expense => {
+        const row = [
+          escapeCsvValue(expense.description),
+          escapeCsvValue(parseFloat(expense.amount).toFixed(2)),
+          escapeCsvValue(expense.category),
+          escapeCsvValue(expense.date),
+          escapeCsvValue(expense.createdAt || ''),
+          escapeCsvValue(expense.updatedAt || '')
+        ]
+        return row.join(',')
+      })
+    ]
+
+    // Join all rows with newlines
+    const csvContent = csvRows.join('\n')
+
+    // Create and download the CSV file
+    const dataBlob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(dataBlob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `expenses-${new Date().toISOString().split('T')[0]}.json`
+    link.download = `expenses-${new Date().toISOString().split('T')[0]}.csv`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -92,7 +130,7 @@ function App() {
 
           <div className="export-section">
             <button onClick={handleExportData} className="export-btn">
-              📥 Export All Expenses Data (JSON)
+              📥 Export All Expenses Data (CSV)
             </button>
           </div>
 

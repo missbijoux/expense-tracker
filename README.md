@@ -10,7 +10,7 @@ A beautiful, modern expense tracker built with React that provides full CRUD (Cr
 - ✅ **Delete**: Remove expenses you no longer need
 - 📊 **Total Tracking**: See your total expenses, entry count, and average expense
 - 💾 **Data Persistence**: Expenses are automatically saved to localStorage
-- 📥 **Data Export**: Export all your expenses as a JSON file for backup or analysis
+- 📥 **Data Export**: Export all your expenses as a CSV file for backup or analysis (opens in Excel, Google Sheets, etc.)
 
 ## Getting Started
 
@@ -40,7 +40,7 @@ npm run dev
 
 3. **Delete an Expense**: Click the "Delete" button on any expense and confirm the deletion
 
-4. **Export Data**: Click the "Export All Expenses Data (JSON)" button to download a JSON file containing all your expenses
+4. **Export Data**: Click the "Export All Expenses Data (CSV)" button to download a CSV file containing all your expenses. The file can be opened in Excel, Google Sheets, or any spreadsheet application.
 
 ## Deployment
 
@@ -84,10 +84,10 @@ expense-tracker/
 
 ## Data Access
 
-All expense data is stored in your browser's localStorage. To access the raw data:
+All expense data is stored in your browser's localStorage. To access the data:
 
-1. Use the "Export All Expenses Data (JSON)" button in the app
-2. Open browser DevTools (F12) → Application/Storage → Local Storage → Check the `expenses` key
+1. **CSV Export**: Use the "Export All Expenses Data (CSV)" button in the app to download a CSV file with all expenses
+2. **Local Storage**: Open browser DevTools (F12) → Application/Storage → Local Storage → Check the `expenses` key (data is stored as JSON internally)
 
 ## Future Enhancements
 
