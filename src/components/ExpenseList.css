@@ -1,20 +1,21 @@
 .expense-list-container {
-  background: white;
+  background: #1e1e2e;
   border-radius: 12px;
   padding: 30px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .expense-list-container h2 {
   margin-bottom: 24px;
-  color: #333;
+  color: #e0e0e0;
   font-size: 1.5rem;
 }
 
 .empty-state {
   text-align: center;
   padding: 60px 20px;
-  color: #999;
+  color: #888;
 }
 
 .empty-state p {
@@ -32,16 +33,17 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  background: #f8f9fa;
+  background: #2a2a3e;
   border-radius: 8px;
   border-left: 4px solid #667eea;
   transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .expense-item:hover {
-  background: #f0f0f0;
+  background: #333347;
   transform: translateX(4px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 .expense-info {
@@ -79,13 +81,13 @@
 .expense-description {
   font-size: 1.1rem;
   font-weight: 500;
-  color: #333;
+  color: #e0e0e0;
   margin-bottom: 4px;
 }
 
 .expense-date {
   font-size: 0.9rem;
-  color: #999;
+  color: #aaa;
 }
 
 .expense-actions {

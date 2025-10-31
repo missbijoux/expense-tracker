@@ -112,6 +112,7 @@ function ExpenseForm({ onAddExpense, onUpdateExpense, editingExpense, onCancelEd
             required
           >
             <option value="">Select a category</option>
+            <option value="Bijoux-Tribute">Bijoux Tribute</option>
             <option value="Food">Food</option>
             <option value="Transportation">Transportation</option>
             <option value="Shopping">Shopping</option>

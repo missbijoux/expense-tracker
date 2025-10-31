@@ -21,12 +21,24 @@ A beautiful, modern expense tracker built with React that provides full CRUD (Cr
 npm install
 ```
 
-2. Start the development server:
-```bash
-npm run dev
-```
+2. For development, you have two options:
 
-3. Open your browser and navigate to the URL shown in the terminal (usually `http://localhost:5173`)
+   **Option A: Run both frontend and backend** (recommended for development)
+   ```bash
+   # Terminal 1: Start the backend server
+   npm run dev:server
+   
+   # Terminal 2: Start the frontend dev server
+   npm run dev
+   ```
+   Then open `http://localhost:5173` (Vite dev server with hot reload)
+
+   **Option B: Run production build** (simulates production)
+   ```bash
+   npm run build
+   npm start
+   ```
+   Then open `http://localhost:3000`
 
 ## Usage
 
@@ -58,10 +70,12 @@ The `railway.json` configuration file is included for optimal deployment setting
 ## Technology Stack
 
 - React 18
+- React Router (client-side routing)
 - Vite (build tool)
+- Express.js (backend API server)
 - CSS3 (modern styling with gradients and animations)
-- localStorage (data persistence)
-- serve (static file server for production)
+- JSON file storage (server-side data persistence)
+- localStorage (client-side caching)
 
 ## Project Structure
 
@@ -73,21 +87,43 @@ expense-tracker/
 │   │   ├── ExpenseList.jsx       # List view of all expenses
 │   │   ├── ExpenseSummary.jsx   # Summary cards showing totals
 │   │   └── *.css                 # Component-specific styles
+│   ├── pages/
+│   │   ├── AdminPortal.jsx      # Admin portal to view all expenses
+│   │   └── AdminPortal.css      # Admin portal styles
 │   ├── App.jsx                   # Main application component
 │   ├── App.css                   # Main app styles
 │   ├── main.jsx                  # Application entry point
 │   └── index.css                 # Global styles
+├── data/                         # Server data storage (auto-created)
+│   └── expenses.json             # All expenses stored here
+├── server.js                     # Express backend server
 ├── index.html                    # HTML entry point
 ├── package.json                  # Dependencies and scripts
-└── vite.config.js               # Vite configuration
+├── vite.config.js               # Vite configuration
+└── railway.json                  # Railway deployment config
 ```
+
+## Admin Portal
+
+Access the admin portal to view **all expenses from all users**:
+- Navigate to `/admin` or click the "🔐 Admin Portal" link in the header
+- View statistics: total expenses, amounts, averages
+- Filter by category or user
+- See breakdown by category and by user
+- View all expenses in a sortable table
+
+The admin portal provides comprehensive insights into all user activity across the platform.
 
 ## Data Access
 
-All expense data is stored in your browser's localStorage. To access the data:
+Expense data is stored both:
+1. **Server-side**: All expenses are saved to a JSON file on the server (`data/expenses.json`)
+2. **Client-side**: Each user's expenses are cached in localStorage for offline access
 
-1. **CSV Export**: Use the "Export All Expenses Data (CSV)" button in the app to download a CSV file with all expenses
-2. **Local Storage**: Open browser DevTools (F12) → Application/Storage → Local Storage → Check the `expenses` key (data is stored as JSON internally)
+To access your data:
+- **CSV Export**: Use the "Export All Expenses Data (CSV)" button in the app
+- **Admin Portal**: View all user expenses at `/admin`
+- **API**: Access expenses via REST API endpoints (see server.js)
 
 ## Future Enhancements
 

@@ -1,45 +1,122 @@
 import React, { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import ExpenseForm from './components/ExpenseForm'
 import ExpenseList from './components/ExpenseList'
 import ExpenseSummary from './components/ExpenseSummary'
 import './App.css'
 
-function App() {
-  const [expenses, setExpenses] = useState(() => {
-    // Load expenses from localStorage if available
-    const savedExpenses = localStorage.getItem('expenses')
-    return savedExpenses ? JSON.parse(savedExpenses) : []
-  })
+function App({ user, token, onLogout }) {
+  const [expenses, setExpenses] = useState([])
   const [editingExpense, setEditingExpense] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
 
-  // Save expenses to localStorage whenever they change
+  // Load expenses from API on mount
   useEffect(() => {
-    localStorage.setItem('expenses', JSON.stringify(expenses))
-  }, [expenses])
+    if (token && user) {
+      fetchExpenses()
+    } else {
+      setLoading(false)
+    }
+  }, [token, user])
+
+  const getAuthHeaders = () => {
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  }
+
+  const fetchExpenses = async () => {
+    try {
+      const response = await fetch('/api/expenses', {
+        headers: getAuthHeaders()
+      })
+      
+      if (response.status === 401 || response.status === 403) {
+        // Token invalid, logout
+        if (onLogout) onLogout()
+        navigate('/login')
+        return
+      }
+
+      const data = await response.json()
+      setExpenses(data)
+    } catch (error) {
+      console.error('Error fetching expenses:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // Create - Add new expense
-  const handleAddExpense = (expense) => {
-    const newExpense = {
-      ...expense,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString()
+  const handleAddExpense = async (expense) => {
+    try {
+      const response = await fetch('/api/expenses', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(expense)
+      })
+
+      if (response.status === 401 || response.status === 403) {
+        if (onLogout) onLogout()
+        navigate('/login')
+        return
+      }
+
+      const savedExpense = await response.json()
+      setExpenses([...expenses, savedExpense])
+    } catch (error) {
+      console.error('Error saving expense:', error)
+      alert('Error saving expense. Please try again.')
     }
-    setExpenses([...expenses, newExpense])
   }
 
   // Update - Edit existing expense
-  const handleUpdateExpense = (updatedExpense) => {
-    setExpenses(expenses.map(exp => 
-      exp.id === updatedExpense.id 
-        ? { ...updatedExpense, updatedAt: new Date().toISOString() }
-        : exp
-    ))
+  const handleUpdateExpense = async (updatedExpense) => {
+    try {
+      const response = await fetch(`/api/expenses/${updatedExpense.id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(updatedExpense)
+      })
+
+      if (response.status === 401 || response.status === 403) {
+        if (onLogout) onLogout()
+        navigate('/login')
+        return
+      }
+
+      const savedExpense = await response.json()
+      setExpenses(expenses.map(exp => 
+        exp.id === savedExpense.id ? savedExpense : exp
+      ))
+    } catch (error) {
+      console.error('Error updating expense:', error)
+      alert('Error updating expense. Please try again.')
+    }
     setEditingExpense(null)
   }
 
   // Delete - Remove expense
-  const handleDeleteExpense = (id) => {
-    setExpenses(expenses.filter(exp => exp.id !== id))
+  const handleDeleteExpense = async (id) => {
+    try {
+      const response = await fetch(`/api/expenses/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      })
+
+      if (response.status === 401 || response.status === 403) {
+        if (onLogout) onLogout()
+        navigate('/login')
+        return
+      }
+
+      setExpenses(expenses.filter(exp => exp.id !== id))
+    } catch (error) {
+      console.error('Error deleting expense:', error)
+      alert('Error deleting expense. Please try again.')
+    }
     if (editingExpense?.id === id) {
       setEditingExpense(null)
     }
@@ -110,11 +187,30 @@ function App() {
     URL.revokeObjectURL(url)
   }
 
+  if (loading) {
+    return (
+      <div className="app">
+        <div className="loading">Loading expenses...</div>
+      </div>
+    )
+  }
+
+  const handleLogout = () => {
+    if (onLogout) {
+      onLogout()
+    }
+    navigate('/login')
+  }
+
   return (
     <div className="app">
       <header className="app-header">
         <h1>💰 Expense Tracker</h1>
-        <p className="subtitle">Track your expenses with ease</p>
+        <p className="subtitle">Welcome, {user?.username || 'User'}!</p>
+        <div className="header-actions">
+          <Link to="/admin" className="admin-link">🔐 Admin Portal</Link>
+          <button onClick={handleLogout} className="logout-btn">Logout</button>
+        </div>
       </header>
 
       <main className="app-main">
