@@ -61,7 +61,7 @@ function Login({ onLogin }) {
     <div className="auth-container">
       <div className="auth-card">
         <h1>🔐 Login</h1>
-        <p className="auth-subtitle">Sign in to your expense tracker</p>
+        <p className="auth-subtitle">Sign in to your Findom expense tracker</p>
 
         {error && <div className="error-message">{error}</div>}
 

@@ -76,7 +76,7 @@ function Signup({ onLogin }) {
     <div className="auth-container">
       <div className="auth-card">
         <h1>✨ Create Account</h1>
-        <p className="auth-subtitle">Start tracking your expenses today</p>
+        <p className="auth-subtitle">Start tracking your expenses for Miss Bijoux today.</p>
 
         {error && <div className="error-message">{error}</div>}
 
