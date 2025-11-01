@@ -398,6 +398,9 @@ app.get('/api/leaderboard', authenticateToken, async (req, res) => {
       .sort((a, b) => b.totalAmount - a.totalAmount)
       .slice(0, 5) // Top 5 only
     
+    console.log('Final leaderboard result:', leaderboard.length, 'entries');
+    console.log('Final leaderboard data:', JSON.stringify(leaderboard, null, 2));
+    
     res.json(leaderboard);
   } catch (error) {
     console.error('Leaderboard error:', error);
