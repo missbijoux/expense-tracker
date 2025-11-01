@@ -350,12 +350,28 @@ app.get('/api/admin/expenses', authenticateAdmin, async (req, res) => {
 // Public leaderboard - Get top contributors (for logged in users)
 app.get('/api/leaderboard', authenticateToken, async (req, res) => {
   try {
+    console.log('=== Leaderboard API Called ===');
+    console.log('Requesting user ID:', req.user.id);
+    
     const expensesData = await readExpenses();
+    console.log('Expenses data structure:', {
+      hasExpenses: !!expensesData.expenses,
+      expensesType: typeof expensesData.expenses,
+      expensesIsArray: Array.isArray(expensesData.expenses),
+      rawData: JSON.stringify(expensesData).substring(0, 200)
+    });
+    
     const usersData = await readUsers();
+    console.log('Users data:', usersData.users.length, 'users found');
+    
     const expenses = expensesData.expenses || [];
     
     console.log('Total expenses for leaderboard:', expenses.length);
-    console.log('Sample expense:', expenses.length > 0 ? expenses[0] : 'none');
+    if (expenses.length > 0) {
+      console.log('Sample expense:', JSON.stringify(expenses[0], null, 2));
+    } else {
+      console.log('NO EXPENSES FOUND - expenses array is empty!');
+    }
     
     // Calculate user stats
     const userStats = {}
