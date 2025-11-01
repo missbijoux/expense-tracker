@@ -352,7 +352,9 @@ app.get('/api/leaderboard', authenticateToken, async (req, res) => {
   try {
     const expensesData = await readExpenses();
     const usersData = await readUsers();
-    const expenses = expensesData.expenses;
+    const expenses = expensesData.expenses || [];
+    
+    console.log('Total expenses for leaderboard:', expenses.length);
     
     // Calculate user stats
     const userStats = {}
@@ -370,6 +372,8 @@ app.get('/api/leaderboard', authenticateToken, async (req, res) => {
       userStats[userId].totalAmount += parseFloat(expense.amount || 0)
     })
 
+    console.log('User stats calculated:', Object.keys(userStats).length, 'users');
+
     // Add user details and sort by total amount
     const leaderboard = Object.values(userStats)
       .map(stat => {
@@ -384,8 +388,11 @@ app.get('/api/leaderboard', authenticateToken, async (req, res) => {
       .sort((a, b) => b.totalAmount - a.totalAmount)
       .slice(0, 5) // Top 5 only
     
+    console.log('Leaderboard result:', leaderboard.length, 'entries');
+    
     res.json(leaderboard);
   } catch (error) {
+    console.error('Leaderboard error:', error);
     res.status(500).json({ error: error.message });
   }
 });
