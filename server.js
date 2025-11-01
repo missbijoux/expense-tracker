@@ -355,12 +355,16 @@ app.get('/api/leaderboard', authenticateToken, async (req, res) => {
     const expenses = expensesData.expenses || [];
     
     console.log('Total expenses for leaderboard:', expenses.length);
+    console.log('Sample expense:', expenses.length > 0 ? expenses[0] : 'none');
     
     // Calculate user stats
     const userStats = {}
     
     expenses.forEach(expense => {
       const userId = expense.userId || 'anonymous'
+      const amount = parseFloat(expense.amount || 0)
+      console.log(`Processing expense - userId: ${userId}, amount: ${amount}, expense:`, expense);
+      
       if (!userStats[userId]) {
         userStats[userId] = {
           userId,
@@ -369,10 +373,11 @@ app.get('/api/leaderboard', authenticateToken, async (req, res) => {
         }
       }
       userStats[userId].count++
-      userStats[userId].totalAmount += parseFloat(expense.amount || 0)
+      userStats[userId].totalAmount += amount
     })
 
     console.log('User stats calculated:', Object.keys(userStats).length, 'users');
+    console.log('User stats details:', JSON.stringify(userStats, null, 2));
 
     // Add user details and sort by total amount
     const leaderboard = Object.values(userStats)

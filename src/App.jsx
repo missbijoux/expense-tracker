@@ -105,8 +105,10 @@ function App({ user, token, onLogout }) {
       const savedExpense = await response.json()
       setExpenses([...expenses, savedExpense])
       
-      // Refresh leaderboard after adding expense
-      fetchLeaderboard()
+      // Refresh leaderboard after adding expense (small delay to ensure server processed it)
+      setTimeout(() => {
+        fetchLeaderboard()
+      }, 500)
     } catch (error) {
       console.error('Error saving expense:', error)
       alert('Error saving expense. Please try again.')
@@ -266,6 +268,23 @@ function App({ user, token, onLogout }) {
         <div className="app-container">
           <ExpenseSummary total={totalExpenses} count={expenses.length} />
 
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px'}}>
+            <div></div>
+            <button 
+              onClick={fetchLeaderboard} 
+              style={{
+                padding: '8px 16px',
+                background: 'rgba(255, 255, 255, 0.1)',
+                color: '#e0e0e0',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '0.9rem'
+              }}
+            >
+              🔄 Refresh Leaderboard
+            </button>
+          </div>
           <TributeLeaderboard leaderboardData={leaderboard} showTop={5} />
           
           <ExpenseForm 

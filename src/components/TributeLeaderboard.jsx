@@ -64,16 +64,18 @@ function TributeLeaderboard({ expenses, users = [], leaderboardData = null, show
   return (
     <div className="tribute-leaderboard">
       <div className="leaderboard-header">
-        <h2>🏆 Tribute Leaderboard</h2>
-        <p className="leaderboard-subtitle">Top Contributors to Bijoux's Expense Tracker</p>
+        <h2>🏆 Leaderboard</h2>
+        <p className="leaderboard-subtitle">Top Bijoux Tributes Logged</p>
       </div>
 
       {leaderboard.length === 0 ? (
         <div className="empty-leaderboard">
           <p>No tributes yet. Be the first to contribute! 🎉</p>
-          <p style={{fontSize: '0.8rem', color: '#888', marginTop: '10px'}}>
-            (Debug: Received {Array.isArray(leaderboardData) ? leaderboardData.length : 'null'} entries)
-          </p>
+          {leaderboardData !== null && leaderboardData !== undefined && (
+            <p style={{fontSize: '0.8rem', color: '#888', marginTop: '10px'}}>
+              (Debug: Received {Array.isArray(leaderboardData) ? leaderboardData.length : 'invalid'} entries from API)
+            </p>
+          )}
         </div>
       ) : (
         <div className="leaderboard-list">
