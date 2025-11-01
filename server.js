@@ -377,18 +377,21 @@ app.get('/api/leaderboard', authenticateToken, async (req, res) => {
     // Add user details and sort by total amount
     const leaderboard = Object.values(userStats)
       .map(stat => {
-        const user = usersData.users.find(u => u.id === stat.userId)
+        // Try to find user by matching IDs (handling string/number mismatches)
+        const user = usersData.users.find(u => 
+          String(u.id) === String(stat.userId) || 
+          u.id === stat.userId
+        )
+        
         return {
           userId: stat.userId,
-          username: user?.username || `User ${stat.userId.slice(-6)}`,
+          username: user?.username || `User ${String(stat.userId).slice(-6)}`,
           count: stat.count,
           totalAmount: stat.totalAmount
         }
       })
       .sort((a, b) => b.totalAmount - a.totalAmount)
       .slice(0, 5) // Top 5 only
-    
-    console.log('Leaderboard result:', leaderboard.length, 'entries');
     
     res.json(leaderboard);
   } catch (error) {
