@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
+import TributeLeaderboard from '../components/TributeLeaderboard'
 import './AdminPortal.css'
 
 function AdminPortal({ user, token }) {
   const [stats, setStats] = useState(null)
   const [expenses, setExpenses] = useState([])
+  const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [filter, setFilter] = useState({ category: '', userId: '' })
@@ -22,9 +24,10 @@ function AdminPortal({ user, token }) {
 
   const fetchData = async () => {
     try {
-      const [statsRes, expensesRes] = await Promise.all([
+      const [statsRes, expensesRes, usersRes] = await Promise.all([
         fetch('/api/admin/stats', { headers: getAuthHeaders() }),
-        fetch('/api/expenses', { headers: getAuthHeaders() })
+        fetch('/api/admin/expenses', { headers: getAuthHeaders() }),
+        fetch('/api/admin/users', { headers: getAuthHeaders() })
       ])
       
       if (statsRes.status === 403) {
@@ -44,9 +47,11 @@ function AdminPortal({ user, token }) {
       if (statsRes.ok && expensesRes.ok) {
         const statsData = await statsRes.json()
         const expensesData = await expensesRes.json()
+        const usersData = usersRes.ok ? await usersRes.json() : []
         
         setStats(statsData)
         setExpenses(expensesData)
+        setUsers(usersData)
       }
       setLoading(false)
     } catch (error) {
@@ -185,6 +190,8 @@ function AdminPortal({ user, token }) {
           </div>
         </div>
       )}
+
+      <TributeLeaderboard expenses={expenses} users={users} />
 
       <div className="admin-filters">
         <select 

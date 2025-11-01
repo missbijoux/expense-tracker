@@ -3,18 +3,21 @@ import { Link, useNavigate } from 'react-router-dom'
 import ExpenseForm from './components/ExpenseForm'
 import ExpenseList from './components/ExpenseList'
 import ExpenseSummary from './components/ExpenseSummary'
+import TributeLeaderboard from './components/TributeLeaderboard'
 import './App.css'
 
 function App({ user, token, onLogout }) {
   const [expenses, setExpenses] = useState([])
+  const [leaderboard, setLeaderboard] = useState([])
   const [editingExpense, setEditingExpense] = useState(null)
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
-  // Load expenses from API on mount
+  // Load expenses and leaderboard from API on mount
   useEffect(() => {
     if (token && user) {
       fetchExpenses()
+      fetchLeaderboard()
     } else {
       setLoading(false)
     }
@@ -46,6 +49,21 @@ function App({ user, token, onLogout }) {
       console.error('Error fetching expenses:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchLeaderboard = async () => {
+    try {
+      const response = await fetch('/api/leaderboard', {
+        headers: getAuthHeaders()
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setLeaderboard(data)
+      }
+    } catch (error) {
+      console.error('Error fetching leaderboard:', error)
     }
   }
 
@@ -218,6 +236,10 @@ function App({ user, token, onLogout }) {
       <main className="app-main">
         <div className="app-container">
           <ExpenseSummary total={totalExpenses} count={expenses.length} />
+
+          {leaderboard.length > 0 && (
+            <TributeLeaderboard leaderboardData={leaderboard} showTop={5} />
+          )}
           
           <ExpenseForm 
             onAddExpense={handleAddExpense}

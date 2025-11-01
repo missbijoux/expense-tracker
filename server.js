@@ -325,6 +325,71 @@ app.delete('/api/expenses/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// Admin portal - Get all users (admin only)
+app.get('/api/admin/users', authenticateAdmin, async (req, res) => {
+  try {
+    const usersData = await readUsers();
+    // Don't send password hashes
+    const usersWithoutPasswords = usersData.users.map(({ password, ...user }) => user);
+    res.json(usersWithoutPasswords);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Admin portal - Get all expenses (admin only - returns ALL expenses from ALL users)
+app.get('/api/admin/expenses', authenticateAdmin, async (req, res) => {
+  try {
+    const data = await readExpenses();
+    res.json(data.expenses);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Public leaderboard - Get top contributors (for logged in users)
+app.get('/api/leaderboard', authenticateToken, async (req, res) => {
+  try {
+    const expensesData = await readExpenses();
+    const usersData = await readUsers();
+    const expenses = expensesData.expenses;
+    
+    // Calculate user stats
+    const userStats = {}
+    
+    expenses.forEach(expense => {
+      const userId = expense.userId || 'anonymous'
+      if (!userStats[userId]) {
+        userStats[userId] = {
+          userId,
+          count: 0,
+          totalAmount: 0
+        }
+      }
+      userStats[userId].count++
+      userStats[userId].totalAmount += parseFloat(expense.amount || 0)
+    })
+
+    // Add user details and sort by total amount
+    const leaderboard = Object.values(userStats)
+      .map(stat => {
+        const user = usersData.users.find(u => u.id === stat.userId)
+        return {
+          userId: stat.userId,
+          username: user?.username || `User ${stat.userId.slice(-6)}`,
+          count: stat.count,
+          totalAmount: stat.totalAmount
+        }
+      })
+      .sort((a, b) => b.totalAmount - a.totalAmount)
+      .slice(0, 5) // Top 5 only
+    
+    res.json(leaderboard);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Admin portal - Get all expenses with stats (admin only)
 app.get('/api/admin/stats', authenticateAdmin, async (req, res) => {
   try {
