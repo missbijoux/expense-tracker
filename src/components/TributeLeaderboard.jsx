@@ -56,6 +56,11 @@ function TributeLeaderboard({ expenses, users = [], leaderboardData = null, show
     return `#${rank}`
   }
 
+  // Debug: Show what we have
+  console.log('TributeLeaderboard render - leaderboardData:', leaderboardData);
+  console.log('TributeLeaderboard render - calculated leaderboard:', leaderboard);
+  console.log('TributeLeaderboard render - leaderboard.length:', leaderboard.length);
+
   return (
     <div className="tribute-leaderboard">
       <div className="leaderboard-header">
@@ -66,6 +71,9 @@ function TributeLeaderboard({ expenses, users = [], leaderboardData = null, show
       {leaderboard.length === 0 ? (
         <div className="empty-leaderboard">
           <p>No tributes yet. Be the first to contribute! 🎉</p>
+          <p style={{fontSize: '0.8rem', color: '#888', marginTop: '10px'}}>
+            (Debug: Received {Array.isArray(leaderboardData) ? leaderboardData.length : 'null'} entries)
+          </p>
         </div>
       ) : (
         <div className="leaderboard-list">
