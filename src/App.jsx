@@ -58,17 +58,32 @@ function App({ user, token, onLogout }) {
         headers: getAuthHeaders()
       })
       
-      if (response.ok) {
-        const data = await response.json()
-        console.log('Leaderboard data:', data) // Debug log
-        setLeaderboard(data || [])
-      } else {
+      if (!response.ok) {
         console.error('Leaderboard fetch failed:', response.status, response.statusText)
-        const errorData = await response.json().catch(() => ({}))
-        console.error('Error details:', errorData)
+        try {
+          const errorData = await response.json()
+          console.error('Error details:', errorData)
+        } catch (e) {
+          console.error('Could not parse error response')
+        }
+        setLeaderboard([])
+        return
+      }
+      
+      const data = await response.json()
+      console.log('Leaderboard data received:', data) // Debug log
+      console.log('Leaderboard data type:', typeof data, Array.isArray(data))
+      
+      if (Array.isArray(data)) {
+        setLeaderboard(data)
+      } else {
+        console.error('Leaderboard data is not an array:', data)
+        setLeaderboard([])
       }
     } catch (error) {
       console.error('Error fetching leaderboard:', error)
+      console.error('Error details:', error.message, error.stack)
+      setLeaderboard([])
     }
   }
 
