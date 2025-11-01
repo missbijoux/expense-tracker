@@ -57,9 +57,16 @@ function TributeLeaderboard({ expenses, users = [], leaderboardData = null, show
   }
 
   // Debug: Show what we have
-  console.log('TributeLeaderboard render - leaderboardData:', leaderboardData);
-  console.log('TributeLeaderboard render - calculated leaderboard:', leaderboard);
-  console.log('TributeLeaderboard render - leaderboard.length:', leaderboard.length);
+  console.log('=== TributeLeaderboard Debug ===');
+  console.log('leaderboardData prop:', leaderboardData);
+  console.log('leaderboardData type:', typeof leaderboardData);
+  console.log('leaderboardData is array?', Array.isArray(leaderboardData));
+  console.log('leaderboardData length:', Array.isArray(leaderboardData) ? leaderboardData.length : 'N/A');
+  console.log('Calculated leaderboard:', leaderboard);
+  console.log('Calculated leaderboard length:', leaderboard.length);
+  console.log('Expenses prop:', expenses);
+  console.log('Users prop:', users);
+  console.log('===============================');
 
   return (
     <div className="tribute-leaderboard">

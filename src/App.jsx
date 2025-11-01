@@ -71,13 +71,22 @@ function App({ user, token, onLogout }) {
       }
       
       const data = await response.json()
-      console.log('Leaderboard data received:', data) // Debug log
-      console.log('Leaderboard data type:', typeof data, Array.isArray(data))
+      console.log('=== Leaderboard API Response ===')
+      console.log('Status:', response.status)
+      console.log('Data received:', data)
+      console.log('Data type:', typeof data)
+      console.log('Is array?', Array.isArray(data))
+      console.log('Data length:', Array.isArray(data) ? data.length : 'N/A')
+      if (Array.isArray(data) && data.length > 0) {
+        console.log('First entry:', data[0])
+      }
+      console.log('================================')
       
       if (Array.isArray(data)) {
+        console.log('Setting leaderboard state with', data.length, 'entries')
         setLeaderboard(data)
       } else {
-        console.error('Leaderboard data is not an array:', data)
+        console.error('ERROR: Leaderboard data is not an array:', data)
         setLeaderboard([])
       }
     } catch (error) {
