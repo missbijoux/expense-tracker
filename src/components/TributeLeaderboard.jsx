@@ -4,12 +4,17 @@ import './TributeLeaderboard.css'
 function TributeLeaderboard({ expenses, users = [], leaderboardData = null, showTop = 10 }) {
   // Calculate leaderboard stats (if expenses provided)
   const calculateLeaderboard = () => {
-    if (leaderboardData) {
+    if (leaderboardData !== null && leaderboardData !== undefined) {
       // Use provided leaderboard data (from API)
-      return leaderboardData
+      console.log('Using leaderboardData:', leaderboardData) // Debug log
+      return Array.isArray(leaderboardData) ? leaderboardData : []
     }
     
     // Calculate from expenses if provided
+    if (!expenses || expenses.length === 0) {
+      return []
+    }
+    
     const userStats = {}
     
     expenses.forEach(expense => {
@@ -42,6 +47,7 @@ function TributeLeaderboard({ expenses, users = [], leaderboardData = null, show
   }
 
   const leaderboard = calculateLeaderboard()
+  console.log('Calculated leaderboard:', leaderboard) // Debug log
 
   const getRankEmoji = (rank) => {
     if (rank === 1) return '🥇'

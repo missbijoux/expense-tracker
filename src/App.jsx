@@ -60,7 +60,12 @@ function App({ user, token, onLogout }) {
       
       if (response.ok) {
         const data = await response.json()
-        setLeaderboard(data)
+        console.log('Leaderboard data:', data) // Debug log
+        setLeaderboard(data || [])
+      } else {
+        console.error('Leaderboard fetch failed:', response.status, response.statusText)
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Error details:', errorData)
       }
     } catch (error) {
       console.error('Error fetching leaderboard:', error)
@@ -84,6 +89,9 @@ function App({ user, token, onLogout }) {
 
       const savedExpense = await response.json()
       setExpenses([...expenses, savedExpense])
+      
+      // Refresh leaderboard after adding expense
+      fetchLeaderboard()
     } catch (error) {
       console.error('Error saving expense:', error)
       alert('Error saving expense. Please try again.')
@@ -109,6 +117,9 @@ function App({ user, token, onLogout }) {
       setExpenses(expenses.map(exp => 
         exp.id === savedExpense.id ? savedExpense : exp
       ))
+      
+      // Refresh leaderboard after updating expense
+      fetchLeaderboard()
     } catch (error) {
       console.error('Error updating expense:', error)
       alert('Error updating expense. Please try again.')
@@ -131,6 +142,9 @@ function App({ user, token, onLogout }) {
       }
 
       setExpenses(expenses.filter(exp => exp.id !== id))
+      
+      // Refresh leaderboard after deleting expense
+      fetchLeaderboard()
     } catch (error) {
       console.error('Error deleting expense:', error)
       alert('Error deleting expense. Please try again.')
@@ -237,9 +251,7 @@ function App({ user, token, onLogout }) {
         <div className="app-container">
           <ExpenseSummary total={totalExpenses} count={expenses.length} />
 
-          {leaderboard.length > 0 && (
-            <TributeLeaderboard leaderboardData={leaderboard} showTop={5} />
-          )}
+          <TributeLeaderboard leaderboardData={leaderboard} showTop={5} />
           
           <ExpenseForm 
             onAddExpense={handleAddExpense}
