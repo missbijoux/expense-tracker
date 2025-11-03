@@ -9,10 +9,15 @@ A beautiful, modern expense tracker built with React that provides full CRUD (Cr
 - ✅ **Update**: Edit any existing expense
 - ✅ **Delete**: Remove expenses you no longer need
 - 📊 **Total Tracking**: See your total expenses, entry count, and average expense
-- 💾 **Data Persistence**: Expenses are automatically saved to localStorage
+- 💾 **Data Persistence**: Expenses are saved to PostgreSQL database
 - 📥 **Data Export**: Export all your expenses as a CSV file for backup or analysis (opens in Excel, Google Sheets, etc.)
 
 ## Getting Started
+
+### Prerequisites
+
+- Node.js (>=18.0.0) and npm (>=9.0.0)
+- PostgreSQL database (local or hosted, e.g., Railway, Supabase, or local PostgreSQL)
 
 ### Installation
 
@@ -21,7 +26,17 @@ A beautiful, modern expense tracker built with React that provides full CRUD (Cr
 npm install
 ```
 
-2. For development, you have two options:
+2. Set up environment variables:
+   - Create a `.env` file or set environment variables:
+   ```
+   DATABASE_URL=postgresql://user:password@host:port/database
+   JWT_SECRET=your-secret-key-here
+   ADMIN_EMAILS=your-email@example.com
+   PORT=3000
+   ```
+   - On Railway, add these as environment variables in your project settings
+
+3. For development, you have two options:
 
    **Option A: Run both frontend and backend** (recommended for development)
    ```bash
