@@ -24,7 +24,24 @@ async function ensureDataDir() {
   const dataDir = path.dirname(DATA_FILE);
   try {
     await fs.access(dataDir);
+    
+    // Check if expenses file exists, if not create it
+    try {
+      await fs.access(DATA_FILE);
+    } catch {
+      console.log('Expenses file does not exist, creating it...');
+      await fs.writeFile(DATA_FILE, JSON.stringify({ expenses: [] }, null, 2));
+    }
+    
+    // Check if users file exists, if not create it
+    try {
+      await fs.access(USERS_FILE);
+    } catch {
+      console.log('Users file does not exist, creating it...');
+      await fs.writeFile(USERS_FILE, JSON.stringify({ users: [] }, null, 2));
+    }
   } catch {
+    console.log('Data directory does not exist, creating it...');
     await fs.mkdir(dataDir, { recursive: true });
     await fs.writeFile(DATA_FILE, JSON.stringify({ expenses: [] }, null, 2));
     await fs.writeFile(USERS_FILE, JSON.stringify({ users: [] }, null, 2));
@@ -107,9 +124,21 @@ async function readExpenses() {
   try {
     await ensureDataDir();
     const data = await fs.readFile(DATA_FILE, 'utf8');
-    return JSON.parse(data);
+    const parsed = JSON.parse(data);
+    
+    // Ensure expenses is always an array
+    if (!parsed.expenses || !Array.isArray(parsed.expenses)) {
+      console.warn('Expenses data is not an array, initializing empty array');
+      return { expenses: [] };
+    }
+    
+    console.log(`readExpenses: Found ${parsed.expenses.length} expenses in file`);
+    return parsed;
   } catch (error) {
-    return { expenses: [], users: {} };
+    console.error('Error reading expenses file:', error.message);
+    console.error('This might mean the file doesn\'t exist yet or is corrupted');
+    // Return empty structure instead of silently failing
+    return { expenses: [] };
   }
 }
 
