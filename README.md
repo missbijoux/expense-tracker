@@ -88,8 +88,9 @@ The `railway.json` configuration file is included for optimal deployment setting
 - React Router (client-side routing)
 - Vite (build tool)
 - Express.js (backend API server)
+- PostgreSQL (database)
 - CSS3 (modern styling with gradients and animations)
-- JSON file storage (server-side data persistence)
+- `pg` (PostgreSQL client for Node.js)
 - localStorage (client-side caching)
 
 ## Project Structure
@@ -109,8 +110,7 @@ expense-tracker/
 │   ├── App.css                   # Main app styles
 │   ├── main.jsx                  # Application entry point
 │   └── index.css                 # Global styles
-├── data/                         # Server data storage (auto-created)
-│   └── expenses.json             # All expenses stored here
+├── db.js                         # PostgreSQL database layer
 ├── server.js                     # Express backend server
 ├── index.html                    # HTML entry point
 ├── package.json                  # Dependencies and scripts
@@ -131,14 +131,31 @@ The admin portal provides comprehensive insights into all user activity across t
 
 ## Data Access
 
-Expense data is stored both:
-1. **Server-side**: All expenses are saved to a JSON file on the server (`data/expenses.json`)
+Expense data is stored in PostgreSQL database:
+1. **Database**: All expenses and users are stored in PostgreSQL (persistent and reliable)
 2. **Client-side**: Each user's expenses are cached in localStorage for offline access
 
 To access your data:
 - **CSV Export**: Use the "Export All Expenses Data (CSV)" button in the app
 - **Admin Portal**: View all user expenses at `/admin`
 - **API**: Access expenses via REST API endpoints (see server.js)
+
+## Database Setup
+
+### On Railway
+
+1. Add a PostgreSQL service to your Railway project
+2. Railway will automatically provide a `DATABASE_URL` environment variable
+3. The app will automatically create the necessary tables on startup
+
+### Local Development
+
+1. Install PostgreSQL locally or use a cloud service (Supabase, Neon, etc.)
+2. Set the `DATABASE_URL` environment variable:
+   ```bash
+   export DATABASE_URL=postgresql://user:password@localhost:5432/expense_tracker
+   ```
+3. Run `npm run dev:server` - the database schema will be created automatically
 
 ## Future Enhancements
 
