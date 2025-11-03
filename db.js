@@ -34,6 +34,8 @@ async function initDatabase() {
     `);
 
     // Create expenses table
+    // Note: Foreign key constraint removed temporarily for easier migration
+    // We can add it back later if needed: FOREIGN KEY ("userId") REFERENCES users(id) ON DELETE CASCADE
     await pool.query(`
       CREATE TABLE IF NOT EXISTS expenses (
         id VARCHAR(255) PRIMARY KEY,
@@ -43,8 +45,7 @@ async function initDatabase() {
         category VARCHAR(255),
         date VARCHAR(255),
         "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        "updatedAt" TIMESTAMP,
-        FOREIGN KEY ("userId") REFERENCES users(id) ON DELETE CASCADE
+        "updatedAt" TIMESTAMP
       )
     `);
 
