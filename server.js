@@ -394,8 +394,13 @@ app.get('*', (req, res) => {
 // Initialize database and start server
 async function startServer() {
   try {
+    console.log('🔄 Initializing database...');
     await db.initDatabase();
-    console.log('✅ Database initialized');
+    console.log('✅ Database initialized successfully');
+    
+    // Test database connection
+    const testQuery = await db.pool.query('SELECT NOW()');
+    console.log('✅ Database connection test successful:', testQuery.rows[0].now);
     
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
@@ -403,6 +408,10 @@ async function startServer() {
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);
+    console.error('Error details:', error.message);
+    if (error.code === 'ECONNREFUSED') {
+      console.error('💡 Make sure PostgreSQL is running and DATABASE_URL is correct');
+    }
     process.exit(1);
   }
 }

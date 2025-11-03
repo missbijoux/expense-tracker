@@ -1,9 +1,21 @@
 const { Pool } = require('pg');
 
+// Check for DATABASE_URL
+if (!process.env.DATABASE_URL) {
+  console.error('❌ ERROR: DATABASE_URL environment variable is not set!');
+  console.error('Please add a PostgreSQL database to your Railway project or set DATABASE_URL manually.');
+  process.exit(1);
+}
+
 // Database connection pool
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL?.includes('ssl=true') ? { rejectUnauthorized: false } : false,
+  ssl: process.env.DATABASE_URL?.includes('ssl') || process.env.DATABASE_URL?.includes('amazonaws') ? { rejectUnauthorized: false } : false,
+});
+
+// Handle connection errors
+pool.on('error', (err) => {
+  console.error('❌ Unexpected database error:', err);
 });
 
 // Initialize database schema
