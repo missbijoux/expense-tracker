@@ -285,13 +285,19 @@ app.get('/api/leaderboard', authenticateToken, async (req, res) => {
     console.log('=== Leaderboard API Called ===');
     console.log('Requesting user ID:', req.user.id);
     
-    const expenses = await db.getAllExpenses();
-    console.log('Total expenses for leaderboard:', expenses.length);
+    const allExpenses = await db.getAllExpenses();
+    console.log('Total expenses:', allExpenses.length);
+    
+    // Filter to only include Bijoux-Tribute expenses
+    const expenses = allExpenses.filter(exp => 
+      exp.category === 'Bijoux-Tribute' || exp.category === 'Bijoux Tribute'
+    );
+    console.log('Bijoux-Tribute expenses:', expenses.length);
     
     const users = await db.getAllUsers();
     console.log('Users data:', users.length, 'users found');
     
-    // Calculate user stats
+    // Calculate user stats (only for Bijoux-Tribute expenses)
     const userStats = {};
     
     expenses.forEach(expense => {
